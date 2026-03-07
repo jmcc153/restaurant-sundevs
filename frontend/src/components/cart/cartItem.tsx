@@ -1,8 +1,31 @@
 import { formatPrice } from "@/lib/utils";
-import type { CartItem } from "@/types";
+import type { CartItemType } from "@/types";
 import Image from "next/image";
+import { QuantitySelector } from "@/components/shared/quantitySelector";
+import { useCartStore } from "@/store/useCartStore";
+import { Button } from "../ui/button";
 
-export function CartItem({ item }: { item: CartItem }) {
+interface Props {
+  item: CartItemType;
+  onEdit: (item: CartItemType) => void;
+}
+
+export function CartItem({ item, onEdit }: Props) {
+  const removeItem = useCartStore((s) => s.removeItem);
+  const addItem = useCartStore((s) => s.addItem);
+
+  const handleQuantityChange = (delta: number) => {
+    if (delta < 0) {
+      removeItem(item.cartItemId);
+    } else {
+      addItem({
+        ...item,
+        quantity: 1,
+        subtotal: item.subtotal / item.quantity,
+      });
+    }
+  };
+
   return (
     <div className="flex items-start space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
       <div className="w-20 h-20 relative rounded-xl overflow-hidden shrink-0">
@@ -31,8 +54,23 @@ export function CartItem({ item }: { item: CartItem }) {
           {item.subtotal > item.basePrice * item.quantity && " + extras"}
         </p>
       </div>
-      <div className="text-sm font-black text-slate-900">
-        {formatPrice(item.subtotal)}
+      <div className="flex flex-col items-end gap-2">
+        <span className="text-sm font-black text-slate-900">
+          {formatPrice(item.subtotal)}
+        </span>
+
+        <div className="flex items-center gap-2">
+          <QuantitySelector
+            quantity={item.quantity}
+            onQuantityChange={handleQuantityChange}
+            min={0}
+          />
+          {item.selectedModifiers && item.selectedModifiers.length > 0 && (
+            <Button variant="link" size="sm" onClick={() => onEdit(item)}>
+              Editar
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { QuantitySelector } from "@/components/shared/quantitySelector";
 import { ModifierModal } from "./modifierModal";
 import { useCartStore } from "@/store/useCartStore";
 import { v4 as uuidv4 } from "uuid";
@@ -70,22 +71,11 @@ export const ProductCard = ({ product }: Props) => {
           <p className="text-muted-foreground text-sm">{product.description}</p>
         </CardContent>
         <CardFooter className="flex items-center gap-4">
-          <div className="flex items-center gap-2 mr-auto">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => handleQuantityChange(-1)}
-            >
-              -
-            </Button>
-            {quantity}
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => handleQuantityChange(1)}
-            >
-              +
-            </Button>
+          <div className="mr-auto">
+            <QuantitySelector
+              quantity={quantity}
+              onQuantityChange={handleQuantityChange}
+            />
           </div>
           <Button onClick={handleClick}>{"Agregar al Carrito"}</Button>
         </CardFooter>
@@ -93,6 +83,7 @@ export const ProductCard = ({ product }: Props) => {
 
       {hasModifiers && (
         <ModifierModal
+          key={product.id}
           product={product}
           quantity={quantity}
           open={modalOpen}

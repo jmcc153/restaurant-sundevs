@@ -4,29 +4,40 @@ import { useCartStore } from "@/store/useCartStore";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { CartItemType } from "@/types";
+import { ModifierModal } from "@/components/menu/modifierModal";
+import { useCheckoutStore } from "@/store/useOrderStore";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function CartPage() {
-  const { items, removeItem } = useCartStore();
+  const [editItem, setEditItem] = useState<CartItemType | null>(null);
+  const { items } = useCartStore();
+  const { processOrder, isProcessing } = useCheckoutStore();
+  const router = useRouter();
 
   const subtotal = items.reduce((acc, item) => acc + item.subtotal, 0);
   const tax = Math.round(subtotal * 0.08);
   const serviceFee = items.length > 0 ? 200 : 0;
   const total = subtotal + tax + serviceFee;
 
+  const handleEdit = (item: CartItemType) => {
+    setEditItem(item);
+  };
+
+  const handleCheckout = async () => {
+    const orderId = await processOrder();
+    if (orderId) {
+      router.push(`/orders/${orderId}`);
+    }
+  };
+
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 min-h-[80vh] flex flex-col">
       {items.length > 0 ? (
         <>
-          <div className="flex flex-col mb-10 animate-in fade-in duration-500">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight text-center">
-              Tu Pedido
-            </h1>
-            <p className="text-center text-slate-500 mt-2 font-medium">
-              Revisa tus productos antes de finalizar
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="lg:col-span-8 space-y-4">
               {items.map((item) => (
@@ -34,13 +45,7 @@ export default function CartPage() {
                   key={item.cartItemId}
                   className="relative group animate-in fade-in slide-in-from-left-4 duration-300"
                 >
-                  <CartItem item={item} />
-                  <button
-                    onClick={() => removeItem(item.cartItemId)}
-                    className="absolute -top-2 -right-2 bg-white text-destructive border border-destructive/20 rounded-full p-1.5 shadow-md z-10 hover:bg-destructive hover:text-white transition-all"
-                  >
-                    <X size={16} strokeWidth={3} />
-                  </button>
+                  <CartItem item={item} onEdit={handleEdit} />
                 </div>
               ))}
             </div>
@@ -81,8 +86,12 @@ export default function CartPage() {
                     </div>
                   </div>
                 </div>
-                <Button className="w-full h-16 rounded-2xl text-lg font-bold shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                  Continuar al Checkout
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isProcessing}
+                  className="w-full h-16 rounded-2xl text-lg font-bold shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  {isProcessing ? "Procesando..." : "Continuar al Checkout"}
                 </Button>
               </div>
             </aside>
@@ -104,15 +113,26 @@ export default function CartPage() {
             <p className="text-slate-500 text-center text-sm font-medium mb-8">
               Parece que aún no has añadido nada delicioso a tu pedido.
             </p>
-            <Button
-              variant="outline"
-              className="rounded-xl font-bold px-8 h-12 border-slate-200 hover:bg-slate-900 hover:text-white transition-all"
-              onClick={() => (window.location.href = "/")}
-            >
-              Volver al Menú
-            </Button>
+            <Link href="/" className="w-full">
+              <Button
+                variant="outline"
+                className="rounded-xl font-bold px-8 h-12 border-slate-200 hover:bg-slate-900 hover:text-white transition-all"
+              >
+                Volver al Menú
+              </Button>
+            </Link>
           </div>
         </div>
+      )}
+      {editItem && (
+        <ModifierModal
+          key={editItem.cartItemId}
+          open={!!editItem}
+          onOpenChange={() => setEditItem(null)}
+          product={editItem}
+          quantity={editItem.quantity}
+          editItem={editItem}
+        />
       )}
     </main>
   );

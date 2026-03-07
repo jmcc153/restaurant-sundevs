@@ -1,0 +1,29 @@
+service: restaurant-api
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  stage: dev
+  environment:
+    MONGODB_URI: ${env:MONGODB_URI, 'mongodb://localhost:27017/restaurant_db'}
+
+functions:
+  api:
+    handler: src/app.handler
+    events:
+      - http:
+          path: /
+          method: any
+          cors: true
+      - http:
+          path: "{proxy+}"
+          method: any
+          cors: true
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3001

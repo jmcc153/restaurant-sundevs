@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Product, ModifierOption } from "@/types";
-import { SelectedModifier } from "@/types/cart";
+import { CartItemType, SelectedModifier } from "@/types/cart";
 import { Modal } from "../shared/modal";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
@@ -17,6 +17,7 @@ interface ModifierModalProps {
   quantity: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editItem?: CartItemType | null;
 }
 
 export const ModifierModal = ({
@@ -24,11 +25,25 @@ export const ModifierModal = ({
   quantity,
   open,
   onOpenChange,
+  editItem,
 }: ModifierModalProps) => {
   const [selections, setSelections] = useState<
     Record<string, ModifierOption[]>
-  >({});
+  >(() => {
+    if (editItem) {
+      const initial: Record<string, ModifierOption[]> = {};
+      product.modifierGroups?.forEach((group) => {
+        initial[group.id] = editItem.selectedModifiers
+          .filter((m) => m.groupName === group.name)
+          .map((m) => m.option);
+      });
+      return initial;
+    }
+    return {};
+  });
+
   const addItem = useCartStore((s) => s.addItem);
+  const updateItem = useCartStore((s) => s.updateItem);
 
   const handleCheck = (
     groupId: string,
@@ -56,24 +71,33 @@ export const ModifierModal = ({
     return (selections[group.id]?.length ?? 0) > 0;
   });
 
+  const buildSelectedModifiers = (): SelectedModifier[] =>
+    product.modifierGroups?.flatMap((group) =>
+      (selections[group.id] ?? []).map((option) => ({
+        groupName: group.name,
+        option,
+      })),
+    ) ?? [];
+
   const extraTotal = Object.values(selections)
     .flat()
     .reduce((sum, opt) => sum + opt.extraPrice, 0);
   const finalSubtotal = (product.basePrice + extraTotal) * quantity;
 
   const handleAddToCart = () => {
-    const selectedModifiers: SelectedModifier[] = [];
-
-    product.modifierGroups?.forEach((group) => {
-      selections[group.id]?.forEach((option) => {
-        selectedModifiers.push({ groupName: group.name, option });
+    if (editItem) {
+      updateItem(editItem.cartItemId, {
+        selectedModifiers: buildSelectedModifiers(),
+        subtotal: finalSubtotal,
       });
-    });
-
+      onOpenChange(false);
+      toast.success(`Pedido actualizado: ${quantity} ${product.name}`);
+      return;
+    }
     addItem({
       ...product,
       cartItemId: uuidv4(),
-      selectedModifiers,
+      selectedModifiers: buildSelectedModifiers(),
       quantity: quantity,
       subtotal: product.basePrice * quantity + extraTotal,
     });
@@ -133,7 +157,7 @@ export const ModifierModal = ({
                     <label
                       key={option.name}
                       className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer
-                        ${selected ? "border-primary bg-primary/[0.03] shadow-sm" : "border-slate-100 hover:border-slate-200"}`}
+                        ${selected ? "border-primary bg-primary/3 shadow-sm" : "border-slate-100 hover:border-slate-200"}`}
                     >
                       <div className="flex items-center gap-3 text-sm font-medium text-slate-700">
                         <div

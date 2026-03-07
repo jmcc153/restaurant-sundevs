@@ -3,10 +3,15 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { useEffect } from "react";
 
 export const Navbar = () => {
-  const { items } = useCartStore();
+  const { items, fetchCart } = useCartStore();
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">

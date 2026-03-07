@@ -5,7 +5,7 @@ export interface SelectedModifier {
   option: ModifierOption;
 }
 
-export interface CartItem extends Product {
+export interface CartItemType extends Product {
   cartItemId: string;
   selectedModifiers: SelectedModifier[];
   quantity: number;
