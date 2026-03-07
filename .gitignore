@@ -1,0 +1,62 @@
+# ###########################################################
+# REGLAS PARA MONOREPO (Frontend & Backend)
+# ###########################################################
+
+# Dependencias (Ignora en cualquier nivel de profundidad)
+**/node_modules
+**/.pnp
+.pnp.*
+
+# Yarn
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/versions
+
+# ###########################################################
+# FRONTEND (Next.js / React)
+# ###########################################################
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# ###########################################################
+# BACKEND (Node.js / Express / NestJS)
+# ###########################################################
+backend/dist/
+backend/build/
+backend/out/
+backend/*.tsbuildinfo
+
+# ###########################################################
+# SEGURIDAD Y PRIVACIDAD (Crítico)
+# ###########################################################
+# Bloquea todos los archivos .env en cualquier carpeta
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/*.pem
+**/*.key
+
+# ###########################################################
+# MISCELÁNEOS Y DEBUG
+# ###########################################################
+.DS_Store
+Thumbs.db
+*.log
+**/.vercel
+**/.turbo
+**/.cache
+**/coverage
+
+# Logs de error específicos de gestores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
