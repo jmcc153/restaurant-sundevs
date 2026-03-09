@@ -1,7 +1,6 @@
 export default function OrderLoading() {
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Stepper skeleton */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -14,7 +13,6 @@ export default function OrderLoading() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Order details skeleton */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -45,7 +43,6 @@ export default function OrderLoading() {
           </div>
         </div>
 
-        {/* Right: Timeline skeleton */}
         <div className="lg:col-span-7">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
             <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />

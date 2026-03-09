@@ -1,6 +1,6 @@
 import { orderRepository } from "../repository/orderRepository";
 import { cartRepository } from "../repository/cartRepository";
-import { productRepository } from "../repository/productRepository";
+import { productRepository } from "../repository/menuRepository";
 import { eventRepository } from "../repository/eventRepository";
 import { OrderItemType, OrderStatus } from "../types/order";
 import { v4 as uuidv4 } from "uuid";

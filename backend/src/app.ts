@@ -28,4 +28,6 @@ app.get("/orders/:orderId/timeline", eventHandler.getTimeline);
 
 app.get("/events/:correlationId", eventHandler.getEventsByCorrelationId);
 
+export { app };
+
 export const handler = serverless(app);

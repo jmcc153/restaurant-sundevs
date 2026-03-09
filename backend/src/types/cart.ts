@@ -19,7 +19,7 @@ export interface modifierGroup {
 
 export interface CartItemType {
   cartItemId: string;
-  id: string;
+  productId: string;
   name: string;
   description: string;
   modifierGroups: modifierGroup[];

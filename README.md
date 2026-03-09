@@ -6,7 +6,7 @@ Restaurant ordering system — Next.js + Express (Serverless) + MongoDB.
 
 ## Requirements
 
-- Node.js >= 22.x
+- Node.js >= 20.x
 - npm >= 10.x
 - Docker >= 20.x (for local MongoDB)
 

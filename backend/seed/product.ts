@@ -10,7 +10,7 @@ const MENU = [
     name: "Giga Burger",
     description: "Doble carne de res, queso cheddar y pan artesanal.",
     image: "https://loremflickr.com/400/400/burger",
-    basePrice: 1250, // $12.50
+    basePrice: 1250,
     modifierGroups: [
       {
         id: "prot",

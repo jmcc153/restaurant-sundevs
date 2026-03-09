@@ -1,4 +1,4 @@
-import { productRepository } from "../repository/productRepository";
+import { productRepository } from "../repository/menuRepository";
 
 export const menuService = {
   getAvailableMenu: async () => {

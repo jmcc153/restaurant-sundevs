@@ -86,19 +86,16 @@ export default function OrderPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Stepper */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
         <OrderStepper status={order.status} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Order details */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Header */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-black text-slate-900">
-                Orden #{order.orderId.slice(0, 8)}
+                Orden #{order.orderId}
               </h1>
               <OrderStatusBadge status={order.status} />
             </div>
@@ -124,7 +121,6 @@ export default function OrderPage() {
             </div>
           </div>
 
-          {/* Items */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
             <h2 className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">
               Items ({order.items.length})
@@ -167,7 +163,6 @@ export default function OrderPage() {
           </div>
         </div>
 
-        {/* Right: Timeline */}
         <div className="lg:col-span-7">
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col">
             <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
