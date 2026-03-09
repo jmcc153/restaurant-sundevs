@@ -23,13 +23,6 @@ vi.mock("@/components/menu/modifierModal", () => ({
   ModifierModal: () => <div data-testid="modifier-modal" />,
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-  return {
-    ...actual,
-    formatPrice: (price: number) => `$${price}`,
-  };
-});
 import { useCartStore } from "@/store/useCartStore";
 import { useCheckoutStore } from "@/store/useOrderStore";
 import CartPage from "../app/cart/page";
@@ -66,7 +59,7 @@ describe("CartPage", () => {
 
   it("muestra el subtotal correctamente", () => {
     render(<CartPage />);
-    expect(screen.getByText("$2000")).toBeInTheDocument();
+    expect(screen.getByText("$20.00")).toBeInTheDocument();
   });
 
   it("muestra el botón de checkout", () => {
@@ -95,7 +88,6 @@ describe("CartPage", () => {
   });
 
   it("redirige a la orden después del checkout", async () => {
-    const push = vi.fn();
     vi.mocked(useCheckoutStore).mockReturnValue({
       processOrder: vi.fn().mockResolvedValue("order-123"),
       isProcessing: false,
