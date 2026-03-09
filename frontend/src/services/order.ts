@@ -20,7 +20,7 @@ export const orderService = {
   getTimeline: async (
     orderId: string,
     page: number = 1,
-    pageSize: number = 50,
+    pageSize: number = 10,
   ) => {
     return apiFetch<PaginatedTimeline>(
       `/orders/${orderId}/timeline?page=${page}&pageSize=${pageSize}`,
@@ -29,5 +29,12 @@ export const orderService = {
 
   getTimelineByCorrelationId: async (correlationId: string) => {
     return apiFetch(`/events/correlation/${correlationId}`);
+  },
+
+  updateOrderStatus: async (orderId: string, status: string) => {
+    return apiFetch(`/orders/${orderId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
   },
 };

@@ -38,4 +38,20 @@ export const useCheckoutStore = create<CheckoutState>((set) => ({
       return null;
     }
   },
+
+  updateOrderStatus: async (orderId: string, status: string) => {
+    set({ isProcessing: true, error: null });
+    try {
+      await orderService.updateOrderStatus(orderId, status);
+    } catch (err) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Error al actualizar el estado de la orden:";
+      set({ error: msg, isProcessing: false });
+      console.error("Error al actualizar el estado de la orden:", err);
+    } finally {
+      set({ isProcessing: false });
+    }
+  },
 }));

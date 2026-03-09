@@ -52,7 +52,11 @@ export const ProductCard = ({ product }: Props) => {
 
   return (
     <>
-      <Card className="overflow-hidden flex flex-col h-full">
+      <Card
+        className="overflow-hidden flex flex-col h-full"
+        role="article"
+        aria-label={product.name}
+      >
         <div className="relative aspect-4/3 w-full overflow-hidden bg-muted/30">
           <Image
             src={product.image}
@@ -64,7 +68,12 @@ export const ProductCard = ({ product }: Props) => {
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className="text-xl">{product.name}</CardTitle>
-            <Badge variant="secondary">{formatPrice(product.basePrice)}</Badge>
+            <Badge
+              variant="secondary"
+              aria-label={`Precio: ${formatPrice(product.basePrice)}`}
+            >
+              {formatPrice(product.basePrice)}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="grow">
@@ -77,7 +86,12 @@ export const ProductCard = ({ product }: Props) => {
               onQuantityChange={handleQuantityChange}
             />
           </div>
-          <Button onClick={handleClick}>{"Agregar al Carrito"}</Button>
+          <Button
+            onClick={handleClick}
+            aria-label={`Agregar ${product.name} al carrito`}
+          >
+            {"Agregar al Carrito"}
+          </Button>
         </CardFooter>
       </Card>
 

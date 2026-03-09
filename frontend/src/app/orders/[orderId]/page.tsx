@@ -6,39 +6,68 @@ import { orderService } from "@/services/order";
 import { Order } from "@/types/order";
 import { TimelineEvent } from "@/types/event";
 import { formatPrice } from "@/lib/utils";
+import { OrderStepper } from "@/components/order/orderStepper";
+import { OrderTimeline } from "@/components/order/orderTimeline";
+import { OrderStatusBadge } from "@/components/order/orderStatusBadge";
+import { Loader2 } from "lucide-react";
 
 export default function OrderPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orderId) return;
-
-    const load = async () => {
+    const init = async () => {
       setLoading(true);
       try {
         const [orderData, timelineData] = await Promise.all([
           orderService.getOrder(orderId),
-          orderService.getTimeline(orderId),
+          orderService.getTimeline(orderId, 1),
         ]);
         setOrder(orderData);
         setEvents(timelineData.events);
+        setTotalPages(timelineData.totalPages);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar");
       } finally {
         setLoading(false);
       }
     };
-    load();
+    init();
   }, [orderId]);
+
+  const handleLoadMore = async () => {
+    if (!orderId) return;
+    const next = page + 1;
+    setLoadingMore(true);
+    try {
+      const timelineData = await orderService.getTimeline(orderId, next);
+      setEvents((prev) => {
+        const existingIds = new Set(prev.map((e) => e.eventId));
+        const newEvents = timelineData.events.filter(
+          (e) => !existingIds.has(e.eventId),
+        );
+        return [...prev, ...newEvents];
+      });
+      setTotalPages(timelineData.totalPages);
+      setPage(next);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al cargar");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   if (loading) {
     return (
-      <main className="max-w-4xl mx-auto px-4 py-12">
-        <p className="text-slate-500">Cargando orden...</p>
+      <main className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="animate-spin text-slate-400" size={32} />
       </main>
     );
   }
@@ -46,129 +75,114 @@ export default function OrderPage() {
   if (error || !order) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-12">
-        <p className="text-red-500">{error ?? "Orden no encontrada"}</p>
+        <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center">
+          <p className="text-red-600 font-bold">
+            {error ?? "Orden no encontrada"}
+          </p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      {/* Order Header */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black text-slate-900">
-            Orden #{order.orderId.slice(0, 8)}
-          </h1>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-            {order.status}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-4 text-sm text-slate-500">
-          <div>
-            <span className="font-semibold text-slate-700">Usuario:</span>{" "}
-            {order.userId}
-          </div>
-          <div>
-            <span className="font-semibold text-slate-700">Total:</span>{" "}
-            {formatPrice(order.total)}
-          </div>
-          <div>
-            <span className="font-semibold text-slate-700">Creada:</span>{" "}
-            {new Date(order.createdAt).toLocaleString()}
-          </div>
-          <div>
-            <span className="font-semibold text-slate-700">
-              Idempotency Key:
-            </span>{" "}
-            <span className="font-mono text-xs">
-              {order.idempotencyKey.slice(0, 8)}...
-            </span>
-          </div>
-        </div>
+    <main className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      {/* Stepper */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <OrderStepper status={order.status} />
       </div>
 
-      {/* Order Items */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">
-          Items ({order.items.length})
-        </h2>
-        <div className="divide-y divide-slate-100">
-          {order.items.map((item) => (
-            <div
-              key={item.cartItemId}
-              className="py-3 flex items-center justify-between"
-            >
-              <div>
-                <p className="font-semibold text-slate-800">
-                  {item.name}{" "}
-                  <span className="text-slate-400 font-normal">
-                    x{item.quantity}
-                  </span>
-                </p>
-                {item.modifiers.length > 0 && (
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {item.modifiers
-                      .map(
-                        (m) =>
-                          `${m.optionName}${m.extraPrice > 0 ? ` (+${formatPrice(m.extraPrice)})` : ""}`,
-                      )
-                      .join(", ")}
-                  </p>
-                )}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left: Order details */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Header */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-black text-slate-900">
+                Orden #{order.orderId.slice(0, 8)}
+              </h1>
+              <OrderStatusBadge status={order.status} />
+            </div>
+            <div className="grid grid-cols-1 gap-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Usuario</span>
+                <span className="font-semibold text-slate-800 font-mono text-xs">
+                  {order.userId}
+                </span>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-slate-900">
-                  {formatPrice(item.subtotal)}
-                </p>
-                <p className="text-xs text-slate-400">
-                  {formatPrice(item.unitPrice)} c/u
-                </p>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Total</span>
+                <span className="font-black text-slate-900">
+                  {formatPrice(order.total)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Creada</span>
+                <span className="font-medium text-slate-700 text-xs">
+                  {new Date(order.createdAt).toLocaleString()}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Timeline / Events */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">
-          Timeline ({events.length} eventos)
-        </h2>
-        {events.length === 0 ? (
-          <p className="text-sm text-slate-400">No hay eventos registrados.</p>
-        ) : (
-          <div className="space-y-3">
-            {events.map((evt) => (
-              <div
-                key={evt.eventId}
-                className="border border-slate-100 rounded-xl p-4 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-slate-800">
-                    {evt.type}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    {new Date(evt.timestamp).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex gap-4 text-xs text-slate-400">
-                  <span>
-                    source: <strong>{evt.source}</strong>
-                  </span>
-                  <span>
-                    correlationId:{" "}
-                    <span className="font-mono">
-                      {evt.correlationId.slice(0, 8)}...
-                    </span>
-                  </span>
-                </div>
-                <pre className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600 overflow-x-auto">
-                  {JSON.stringify(evt.payload, null, 2)}
-                </pre>
-              </div>
-            ))}
           </div>
-        )}
+
+          {/* Items */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h2 className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">
+              Items ({order.items.length})
+            </h2>
+            <div className="divide-y divide-slate-100">
+              {order.items.map((item) => (
+                <div
+                  key={item.cartItemId}
+                  className="py-3 flex items-center justify-between"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-800 text-sm">
+                      {item.name}{" "}
+                      <span className="text-slate-400 font-normal">
+                        x{item.quantity}
+                      </span>
+                    </p>
+                    {item.modifiers.length > 0 && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {item.modifiers
+                          .map(
+                            (m) =>
+                              `${m.optionName}${m.extraPrice > 0 ? ` (+${formatPrice(m.extraPrice)})` : ""}`,
+                          )
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-slate-900 text-sm">
+                      {formatPrice(item.subtotal)}
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      {formatPrice(item.unitPrice)} c/u
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Timeline */}
+        <div className="lg:col-span-7">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
+              Timeline
+            </h2>
+            <div className="overflow-y-auto max-h-[600px] pr-2 scrollbar-thin">
+              <OrderTimeline
+                events={events}
+                hasMore={page < totalPages}
+                loading={loadingMore}
+                onLoadMore={handleLoadMore}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );

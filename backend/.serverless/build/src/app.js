@@ -89089,17 +89089,9 @@ var Cart = (0, import_mongoose2.model)("Cart", CartSchema);
 
 // src/repository/cartRepository.ts
 var cartRepository = {
-  /**
-   * Obtiene el carrito actual del usuario.
-   * Útil para sincronizar el store de Zustand al cargar la app.
-   */
   findByUserId: async (userId) => {
     return await Cart.findOne({ userId }).lean();
   },
-  /**
-   * Guarda o actualiza el carrito completo.
-   * En el patrón de "espejo", el servidor valida y sobrescribe el estado.
-   */
   save: async (userId, items) => {
     return await Cart.findOneAndUpdate(
       { userId },
@@ -89114,9 +89106,6 @@ var cartRepository = {
       }
     ).lean();
   },
-  /**
-   * Limpia el carrito tras un checkout exitoso.
-   */
   clear: async (userId) => {
     return await Cart.findOneAndUpdate(
       { userId },
@@ -89124,9 +89113,6 @@ var cartRepository = {
       { returnDocument: "after" }
     ).lean();
   },
-  /**
-   * Elimina un item específico (opcional, si prefieres manejar lógica atómica).
-   */
   removeItem: async (userId, cartItemId) => {
     return await Cart.findOneAndUpdate(
       { userId },
@@ -89216,10 +89202,6 @@ var v4_default = v4;
 
 // src/repository/eventRepository.ts
 var eventRepository = {
-  /**
-   * Guarda un nuevo evento en el Timeline.
-   * Los eventos son inmutables (Append-only).
-   */
   save: async (eventData) => {
     const payloadString = JSON.stringify(eventData.payload);
     const sizeInBytes = Buffer.byteLength(payloadString, "utf8");
@@ -89233,15 +89215,11 @@ var eventRepository = {
     });
     return await newEvent.save();
   },
-  /**
-   * Recupera el historial de eventos (Timeline).
-   * Requisito 4: Ordenado por timestamp para reconstruir la historia.
-   */
-  getTimeline: async (correlationId, page = 1, pageSize = 50) => {
+  getTimeline: async (correlationId, page = 1, pageSize = 10) => {
     const skip = (page - 1) * pageSize;
-    const clampedSize = Math.min(pageSize, 50);
+    const clampedSize = Math.min(pageSize, 10);
     const [events, totalCount] = await Promise.all([
-      Event.find({ correlationId }).sort({ timestamp: 1 }).skip(skip).limit(clampedSize).lean(),
+      Event.find({ correlationId }).sort({ timestamp: -1 }).skip(skip).limit(clampedSize).lean(),
       Event.countDocuments({ correlationId })
     ]);
     return {
@@ -89252,10 +89230,6 @@ var eventRepository = {
       totalPages: Math.ceil(totalCount / clampedSize)
     };
   },
-  /**
-   * Busca eventos por Correlation ID.
-   * Útil para auditoría de una sesión específica del carrito.
-   */
   findByCorrelationId: async (correlationId) => {
     return await Event.find({ correlationId }).sort({ timestamp: 1 }).lean();
   }
@@ -89364,7 +89338,7 @@ var deleteItem = async (req, res) => {
 
 // src/services/eventService.ts
 var eventService = {
-  getTimeline: async (correlationId, page = 1, pageSize = 50) => {
+  getTimeline: async (correlationId, page = 1, pageSize = 10) => {
     return await eventRepository.getTimeline(correlationId, page, pageSize);
   },
   findByCorrelationId: async (correlationId) => {

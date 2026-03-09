@@ -23,14 +23,14 @@ export const eventRepository = {
   getTimeline: async (
     correlationId: string,
     page: number = 1,
-    pageSize: number = 50,
+    pageSize: number = 10,
   ) => {
     const skip = (page - 1) * pageSize;
-    const clampedSize = Math.min(pageSize, 50);
+    const clampedSize = Math.min(pageSize, 10);
 
     const [events, totalCount] = await Promise.all([
       Event.find({ correlationId })
-        .sort({ timestamp: 1 })
+        .sort({ timestamp: -1 })
         .skip(skip)
         .limit(clampedSize)
         .lean(),

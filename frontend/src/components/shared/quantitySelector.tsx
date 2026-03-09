@@ -14,16 +14,27 @@ export const QuantitySelector = ({
   min = 1,
 }: QuantitySelectorProps) => {
   return (
-    <div className="flex items-center gap-2">
+    <div
+      role="group"
+      aria-label="Selector de cantidad"
+      className="flex items-center gap-2"
+    >
       <Button
         variant="outline"
         onClick={() => onQuantityChange(-1)}
         disabled={quantity <= min}
+        aria-label="Disminuir cantidad"
       >
         -
       </Button>
-      {quantity}
-      <Button variant="outline" onClick={() => onQuantityChange(1)}>
+      <span aria-live="polite" aria-atomic="true">
+        {quantity}
+      </span>
+      <Button
+        variant="outline"
+        onClick={() => onQuantityChange(1)}
+        aria-label="Aumentar cantidad"
+      >
         +
       </Button>
     </div>

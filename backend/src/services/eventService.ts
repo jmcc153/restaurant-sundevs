@@ -4,7 +4,7 @@ export const eventService = {
   getTimeline: async (
     correlationId: string,
     page: number = 1,
-    pageSize: number = 50,
+    pageSize: number = 10,
   ) => {
     return await eventRepository.getTimeline(correlationId, page, pageSize);
   },

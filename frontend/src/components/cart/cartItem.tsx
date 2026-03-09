@@ -27,7 +27,10 @@ export function CartItem({ item, onEdit }: Props) {
   };
 
   return (
-    <div className="flex items-start space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
+    <article
+      aria-label={`${item.name}, cantidad ${item.quantity}, ${formatPrice(item.subtotal)}`}
+      className="flex items-start space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-100"
+    >
       <div className="w-20 h-20 relative rounded-xl overflow-hidden shrink-0">
         <Image src={item.image} alt={item.name} fill className="object-cover" />
       </div>
@@ -37,7 +40,10 @@ export function CartItem({ item, onEdit }: Props) {
         </h3>
 
         {item.selectedModifiers && item.selectedModifiers.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1">
+          <div
+            className="flex flex-wrap gap-1 mt-1"
+            aria-label="Modificadores seleccionados"
+          >
             {item.selectedModifiers.map((mod, idx) => (
               <span
                 key={idx}
@@ -66,12 +72,17 @@ export function CartItem({ item, onEdit }: Props) {
             min={0}
           />
           {item.selectedModifiers && item.selectedModifiers.length > 0 && (
-            <Button variant="link" size="sm" onClick={() => onEdit(item)}>
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => onEdit(item)}
+              aria-label={`Editar modificadores de ${item.name}`}
+            >
               Editar
             </Button>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
