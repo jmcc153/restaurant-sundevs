@@ -77,7 +77,23 @@ Open http://localhost:3000
 
 ## Testing
 
-Space to explain how to run tests, lint, and build. (Complete here)
+### Backend
+
+Para correr los tests del backend (Vitest):
+
+```bash
+cd backend
+npm run test
+```
+
+### Frontend
+
+Para correr los tests del frontend (Vitest + Testing Library):
+
+```bash
+cd frontend
+npm run test
+```
 
 ---
 

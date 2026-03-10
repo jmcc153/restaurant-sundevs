@@ -89234,13 +89234,6 @@ var cartRepository = {
       }
     ).lean();
   },
-  clear: async (userId) => {
-    return await Cart.findOneAndUpdate(
-      { userId },
-      { items: [] },
-      { returnDocument: "after" }
-    ).lean();
-  },
   removeItem: async (userId, cartItemId) => {
     return await Cart.findOneAndUpdate(
       { userId },

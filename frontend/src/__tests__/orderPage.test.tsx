@@ -12,10 +12,6 @@ vi.mock("@/services/order", () => ({
   },
 }));
 
-vi.mock("@/lib/utils", () => ({
-  formatPrice: (p: number) => `$${p}`,
-}));
-
 vi.mock("@/components/order/orderStepper", () => ({
   OrderStepper: ({ status }: { status: string }) => (
     <div data-testid="order-stepper">{status}</div>
@@ -76,7 +72,7 @@ describe("OrderPage", () => {
 
   it("muestra el total de la orden", async () => {
     render(<OrderPage />);
-    await waitFor(() => expect(screen.getByText("$3000")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("$30.00")).toBeInTheDocument());
   });
 
   it("muestra el stepper con el status", async () => {

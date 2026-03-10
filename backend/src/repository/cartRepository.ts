@@ -20,14 +20,6 @@ export const cartRepository = {
     ).lean();
   },
 
-  clear: async (userId: string) => {
-    return await Cart.findOneAndUpdate(
-      { userId },
-      { items: [] },
-      { returnDocument: "after" },
-    ).lean();
-  },
-
   removeItem: async (userId: string, cartItemId: string) => {
     return await Cart.findOneAndUpdate(
       { userId },

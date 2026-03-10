@@ -37,7 +37,7 @@ export default function CartPage() {
   return (
     <main
       aria-label="Carrito de compras"
-      className="max-w-7xl mx-auto px-4 py-8 md:py-12 min-h-[80vh] flex flex-col"
+      className="container mx-auto px-4 py-8 md:py-12 min-h-[80vh] flex flex-col"
     >
       {items.length > 0 ? (
         <>
@@ -46,6 +46,11 @@ export default function CartPage() {
               aria-label="Artículos en el carrito"
               className="lg:col-span-8 space-y-4"
             >
+              <div className="flex items-center justify-between mb-4 border rounded-xl p-2 shadow-sm bg-white border-slate-200 pb-2  ">
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Mis productos
+                </h2>
+              </div>
               {items.map((item) => (
                 <div
                   key={item.cartItemId}

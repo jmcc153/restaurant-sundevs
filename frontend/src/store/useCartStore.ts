@@ -17,7 +17,6 @@ interface CartState {
     updatedFields: Partial<CartItemType>,
   ) => void;
   removeItem: (cartItemId: string) => void;
-  clearCart: () => void;
   refreshCorrelationId: () => void;
 }
 
@@ -114,8 +113,6 @@ export const useCartStore = create<CartState>()(
           });
           return { items: updatedItems };
         }),
-
-      clearCart: () => set({ items: [] }),
 
       refreshCorrelationId: () => set({ correlationId: uuidv4() }),
     }),
